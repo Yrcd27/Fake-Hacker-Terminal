@@ -125,3 +125,13 @@ body {
     from { background: rgba(255, 0, 0, 0.2); }
     to   { background: rgba(255, 0, 0, 0.7); }
 }
+
+.line.flag {
+    color: #ffff00;
+    font-weight: bold;
+}
+
+.line.info {
+    color: #00ffff;
+    font-weight: bold;
+}

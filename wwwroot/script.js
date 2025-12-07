@@ -4,9 +4,8 @@ const selfDestructOverlay = document.getElementById("self-destruct-overlay");
 const countdownEl = document.getElementById("countdown");
 
 let selfDestructInProgress = false;
-let logsPaused = false; // NEW
 
-// ----------------------- Helpers -----------------------
+// ---------------- Helpers ----------------
 
 function addLine(text, type = "system") {
     const line = document.createElement("div");
@@ -19,6 +18,20 @@ function addLine(text, type = "system") {
     }
 
     screenEl.scrollTop = screenEl.scrollHeight;
+}
+
+function printResponse(text) {
+    if (!text) return;
+
+    const lines = text.split(/\r?\n/);
+    for (const raw of lines) {
+        const line = raw.trimEnd();
+        if (!line) continue;
+
+        const isFlag = line.includes("FAKE{");
+        const type = isFlag ? "flag" : "system";
+        addLine(line, type);
+    }
 }
 
 async function fetchJson(url, options = {}) {
@@ -34,73 +47,39 @@ async function fetchJson(url, options = {}) {
     }
 }
 
-// NEW — Pause logs for a few seconds when user runs a command
-function pauseLogs(seconds = 3) {
-    logsPaused = true;
-    setTimeout(() => {
-        logsPaused = false;
-    }, seconds * 1000);
-}
-
-// ----------------------- Periodic API calls -----------------------
-
-// Random system lines
-setInterval(async () => {
-    if (selfDestructInProgress || logsPaused) return;
-    const data = await fetchJson("/api/terminal/random-line");
-    if (data?.text) addLine(data.text, "system");
-}, 1500);
-
-// Fast password cracking lines
-setInterval(async () => {
-    if (selfDestructInProgress || logsPaused) return;
-    const data = await fetchJson("/api/terminal/password-line");
-    if (data?.text) addLine(data.text, "password");
-}, 120);
-
-// IP scan lines
-setInterval(async () => {
-    if (selfDestructInProgress || logsPaused) return;
-    const data = await fetchJson("/api/terminal/ip-line");
-    if (data?.text) addLine(data.text, "ip");
-}, 400);
-
-// ----------------------- Command Handling -----------------------
+// ---------------- Command handling ----------------
 
 inputEl.addEventListener("keydown", async (e) => {
-    if (e.key === "Enter") {
-        const cmd = inputEl.value.trim();
-        if (!cmd) return;
+    if (e.key !== "Enter") return;
 
-        addLine("$ " + cmd, "user");
+    const cmd = inputEl.value.trim();
+    if (!cmd) return;
 
-        pauseLogs(3); // NEW — freeze logs so text stays readable
+    addLine("$ " + cmd, "user");
+    inputEl.value = "";
 
-        inputEl.value = "";
+    if (cmd.toLowerCase() === "selfdestruct" && !selfDestructInProgress) {
+        startSelfDestruct();
+    }
 
-        if (cmd.toLowerCase() === "selfdestruct" && !selfDestructInProgress) {
-            startSelfDestruct();
-        }
+    const data = await fetchJson("/api/terminal/interpret", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ command: cmd })
+    });
 
-        const data = await fetchJson("/api/terminal/interpret", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ command: cmd })
-        });
+    if (!data || typeof data.text !== "string") return;
 
-        if (!data || !data.text) return;
-
-        if (data.text === "__clear__") {
-            screenEl.innerHTML = "";
-        } else {
-            addLine(data.text, "system");
-        }
+    if (data.text === "__clear__") {
+        screenEl.innerHTML = "";
+    } else {
+        printResponse(data.text);
     }
 });
 
-// ----------------------- Self Destruct -----------------------
+// ---------------- Self destruct (fun extra) ----------------
 
 function startSelfDestruct() {
     selfDestructInProgress = true;
@@ -127,7 +106,7 @@ function startSelfDestruct() {
     }, 1000);
 }
 
-// ----------------------- Matrix Code Rain -----------------------
+// ---------------- Matrix-style code rain ----------------
 
 const canvas = document.getElementById("matrix-canvas");
 const ctx = canvas.getContext("2d");
@@ -170,7 +149,18 @@ window.addEventListener("resize", initMatrix);
 initMatrix();
 requestAnimationFrame(drawMatrix);
 
-// ----------------------- Initial Startup -----------------------
+// ---------------- Initial lines ----------------
 
-addLine("Fake Hacker Terminal v1.0", "system");
-addLine("Type 'help' and press Enter to see available fake commands.", "system");
+addLine("Fake Hacker Terminal CTF v1.0", "system");
+addLine("", "system");
+addLine("FLAG FORMAT: FAKE{CONTENT_HERE}", "flag");
+addLine("All flags follow this format with UPPERCASE content.", "system");
+addLine("", "system");
+addLine("HOW TO SUBMIT: submit FAKE{YOUR_FLAG_HERE}", "info");
+addLine("Include the entire flag with FAKE{ and }", "system");
+addLine("", "system");
+addLine("Use small, familiar moves. Try 'help' or 'ls' to see where you woke up.", "system");
+
+// Focus input on load and when clicking terminal
+window.addEventListener("load", () => inputEl.focus());
+document.getElementById("terminal")?.addEventListener("click", () => inputEl.focus());
