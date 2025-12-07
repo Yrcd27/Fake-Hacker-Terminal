@@ -4,8 +4,9 @@ const selfDestructOverlay = document.getElementById("self-destruct-overlay");
 const countdownEl = document.getElementById("countdown");
 
 let selfDestructInProgress = false;
+let logsPaused = false; // NEW
 
-// -------------- Helpers --------------
+// ----------------------- Helpers -----------------------
 
 function addLine(text, type = "system") {
     const line = document.createElement("div");
@@ -13,12 +14,10 @@ function addLine(text, type = "system") {
     line.textContent = text;
     screenEl.appendChild(line);
 
-    // Limit total lines
     if (screenEl.children.length > 300) {
         screenEl.removeChild(screenEl.firstChild);
     }
 
-    // Scroll to bottom
     screenEl.scrollTop = screenEl.scrollHeight;
 }
 
@@ -35,46 +34,54 @@ async function fetchJson(url, options = {}) {
     }
 }
 
-// -------------- Periodic API calls --------------
+// NEW — Pause logs for a few seconds when user runs a command
+function pauseLogs(seconds = 3) {
+    logsPaused = true;
+    setTimeout(() => {
+        logsPaused = false;
+    }, seconds * 1000);
+}
+
+// ----------------------- Periodic API calls -----------------------
 
 // Random system lines
 setInterval(async () => {
-    if (selfDestructInProgress) return;
+    if (selfDestructInProgress || logsPaused) return;
     const data = await fetchJson("/api/terminal/random-line");
     if (data?.text) addLine(data.text, "system");
 }, 1500);
 
 // Fast password cracking lines
 setInterval(async () => {
-    if (selfDestructInProgress) return;
+    if (selfDestructInProgress || logsPaused) return;
     const data = await fetchJson("/api/terminal/password-line");
     if (data?.text) addLine(data.text, "password");
 }, 120);
 
 // IP scan lines
 setInterval(async () => {
-    if (selfDestructInProgress) return;
+    if (selfDestructInProgress || logsPaused) return;
     const data = await fetchJson("/api/terminal/ip-line");
     if (data?.text) addLine(data.text, "ip");
 }, 400);
 
-// -------------- Mini-game: command handling --------------
+// ----------------------- Command Handling -----------------------
 
 inputEl.addEventListener("keydown", async (e) => {
     if (e.key === "Enter") {
         const cmd = inputEl.value.trim();
         if (!cmd) return;
 
-        // Show the user's command in the terminal
         addLine("$ " + cmd, "user");
+
+        pauseLogs(3); // NEW — freeze logs so text stays readable
+
         inputEl.value = "";
 
-        // Self destruct handled in frontend
         if (cmd.toLowerCase() === "selfdestruct" && !selfDestructInProgress) {
             startSelfDestruct();
         }
 
-        // Send command to backend
         const data = await fetchJson("/api/terminal/interpret", {
             method: "POST",
             headers: {
@@ -86,7 +93,6 @@ inputEl.addEventListener("keydown", async (e) => {
         if (!data || !data.text) return;
 
         if (data.text === "__clear__") {
-            // Special clear command
             screenEl.innerHTML = "";
         } else {
             addLine(data.text, "system");
@@ -94,7 +100,7 @@ inputEl.addEventListener("keydown", async (e) => {
     }
 });
 
-// -------------- Self destruct sequence --------------
+// ----------------------- Self Destruct -----------------------
 
 function startSelfDestruct() {
     selfDestructInProgress = true;
@@ -109,7 +115,7 @@ function startSelfDestruct() {
 
         if (count <= 0) {
             clearInterval(timer);
-            // Flash effect: clear screen and reset after short delay
+
             screenEl.innerHTML = "";
             addLine("System rebooted after self-destruct.", "system");
 
@@ -121,7 +127,7 @@ function startSelfDestruct() {
     }, 1000);
 }
 
-// -------------- Matrix-style code rain --------------
+// ----------------------- Matrix Code Rain -----------------------
 
 const canvas = document.getElementById("matrix-canvas");
 const ctx = canvas.getContext("2d");
@@ -152,9 +158,7 @@ function drawMatrix() {
 
         ctx.fillText(text, x, y);
 
-        if (y > height && Math.random() > 0.975) {
-            drops[i] = 0;
-        }
+        if (y > height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
     }
 
@@ -166,7 +170,7 @@ window.addEventListener("resize", initMatrix);
 initMatrix();
 requestAnimationFrame(drawMatrix);
 
-// -------------- Initial lines --------------
+// ----------------------- Initial Startup -----------------------
 
 addLine("Fake Hacker Terminal v1.0", "system");
 addLine("Type 'help' and press Enter to see available fake commands.", "system");
