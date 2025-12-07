@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fake Hacker Terminal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <div id="terminal">
+        <div id="screen"></div>
+
+        <div id="command-line">
+            <span class="prompt">$</span>
+            <input id="command-input" type="text" autocomplete="off" placeholder="type a command and press Enter (try: help)">
+        </div>
+    </div>
+
+    <div id="self-destruct-overlay" class="hidden">
+        <div class="overlay-content">
+            <div>SELF DESTRUCT IN</div>
+            <div id="countdown">5</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
