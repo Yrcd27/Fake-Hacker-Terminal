@@ -1,10 +1,16 @@
+<div align="center">
+
 # 🖥️ Fake Hacker Terminal CTF
 
-A Matrix-style interactive terminal with 5 progressive Capture The Flag (CTF) challenges. Built for fun with ASP.NET Core and vanilla JavaScript.
+A Matrix-style interactive terminal with 5 progressive Capture The Flag (CTF) challenges.  
+Built for fun with ASP.NET Core and vanilla JavaScript.
 
 ![Terminal Preview](https://img.shields.io/badge/Status-Complete-success)
 ![.NET](https://img.shields.io/badge/.NET-8.0-purple)
 ![License](https://img.shields.io/badge/License-MIT-blue)
+
+</div>
+
 
 ## 🎯 Features
 
