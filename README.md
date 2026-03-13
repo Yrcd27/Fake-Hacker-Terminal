@@ -1,13 +1,14 @@
 <div align="center">
 
-# 🖥️ Fake Hacker Terminal CTF
+# Fake Hacker Terminal CTF
 
-A Matrix-style interactive terminal with 5 progressive Capture The Flag (CTF) challenges.  
-Built for fun with ASP.NET Core and vanilla JavaScript.
+Fake hacker terminal CTF with Matrix effects. Five encoding challenges for fun. Base64, ROT13, MD5, XOR, and grep puzzles included.
 
-![Terminal Preview](https://img.shields.io/badge/Status-Complete-success)
-![.NET](https://img.shields.io/badge/.NET-8.0-purple)
-![License](https://img.shields.io/badge/License-MIT-blue)
+[![C#](https://img.shields.io/badge/C%23-61.5%25-512BD4?style=flat&logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-23.9%25-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
+[![CSS3](https://img.shields.io/badge/CSS3-10.8%25-1572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/docs/Web/CSS)
+[![HTML5](https://img.shields.io/badge/HTML5-3.8%25-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/docs/Web/HTML)
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
 
 </div>
 
